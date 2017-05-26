@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import CountDownComponent from './components/countDown.js';
+import CountDownComponent from './components/countDown2.js';
 import {
   AppRegistry,
   StyleSheet,

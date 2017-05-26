@@ -43,53 +43,28 @@ export default class StartingGameCountDown extends React.Component {
       time: props.time,
       countDown: new Animated.Value(0),
       currentTimeToBegin: props.currentTimeToBegin,
-      imagePosition: 0
+      imagePosition: new Animated.Value(0)
     };
   }
   componentDidMount() {
-    Animated.sequence([
-      Animated.timing(
-        this.state.countDown,
-        {
-          toValue: 1,
-          duration: 1000
+      Animated.loop(
+        Animated.timing(
+          this.state.countDown,
+          {
+            toValue: 1,
+            duration: 1000
+          }
+        ).start(() => {
+          let imagePos = this.state.imagePosition;
+          imagePos.setValue(imagePos + 1);
+        }), {
+          iterations: 3
+        }).start(() => {
+          this.state.countDown.setValue(0);
         }
-      ),
-      Animated.timing(
-        this.state.countDown,
-        {
-          toValue: 0,
-          duration: 0
-        }
-      ),
-      Animated.timing(
-        this.state.countDown,
-        {
-          toValue: 1,
-          duration: 1000
-        }
-      ),
-      Animated.timing(
-        this.state.countDown,
-        {
-          toValue: 0,
-          duration: 0
-        }
-      ),
-      Animated.timing(
-        this.state.countDown,
-        {
-          toValue: 1,
-          duration: 1000
-        }
-      )
-    ]).start();
-  }
-  shouldComponentUpdate(nextProps, nextState) {
-    return false;
+      );
   }
   render() {
-    let nextImagePos = this.props.time - this.state.time;
     return (
       <Animated.View
         style={{
@@ -102,7 +77,9 @@ export default class StartingGameCountDown extends React.Component {
           }]
         }}
       >
-      {timeLapse[nextImagePos]}
+      {timeLapse[
+        0
+      ]}
       </Animated.View>
     );
   }
