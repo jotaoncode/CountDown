@@ -95,11 +95,6 @@ export default class StartingGameCountDown extends React.Component {
     //What to be Animated
     for(let i = 0; i < this.state.quantity; i++) {
       let image =this.state.images[i];
-      // I could not make it dissapear but i can move it to the left with 0 opacity
-      let actualImage = image.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0, 10]
-      });
       result.push(
           <Animated.Image
               key={util.uniqueId()}
@@ -107,7 +102,6 @@ export default class StartingGameCountDown extends React.Component {
               style={{
                 //How to animate it
                   position: 'absolute',
-                  left: actualImage,
                   opacity: image,
                   transform: [{
                     translateY: transitionY
