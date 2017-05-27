@@ -31,11 +31,46 @@ const styles = StyleSheet.create({
   }
 });
 const timeLapse = [
-              <Image source={require('../images/1.png')} key={util.uniqueId()}/>,
-              <Image source={require('../images/2.png')} key={util.uniqueId()}/>,
-              <Image source={require('../images/3.png')} key={util.uniqueId()}/>
+  require('../images/1.png'),
+  require('../images/2.png'),
+  require('../images/3.png')
 ];
 
+const animations = (state) => {
+  const result = []
+  for(let i = 0; i < state.quantity; i++) {
+    //Start
+    result.push(Animated.timing(
+          state.countDown,
+          {
+            toValue: 0,
+            duration: 0
+          }
+        )
+    );
+    //Animate
+    for(let j = 0; j < state.quantity; j++) {
+      result.push(Animated.timing(
+            state.images[j],
+            {
+              toValue: i === j ? 1 : 0,
+              duration: 0
+            }
+          )
+      );
+    }
+    //Stop
+    result.push(Animated.timing(
+          state.countDown,
+          {
+            toValue: 1,
+            duration: state.duration
+          }
+        )
+    );
+  }
+  return result;
+};
 export default class StartingGameCountDown extends React.Component {
   constructor(props) {
     super(props);
@@ -43,44 +78,55 @@ export default class StartingGameCountDown extends React.Component {
       time: props.time,
       countDown: new Animated.Value(0),
       currentTimeToBegin: props.currentTimeToBegin,
-      imagePosition: new Animated.Value(0)
+      quantity: 3,
+      sizes: [],
+      duration: 1000,
+      images: [new Animated.Value(1), new Animated.Value(0), new Animated.Value(0)]
     };
   }
   componentDidMount() {
-      Animated.loop(
-        Animated.timing(
-          this.state.countDown,
-          {
-            toValue: 1,
-            duration: 1000
-          }
-        ).start(() => {
-          let imagePos = this.state.imagePosition;
-          imagePos.setValue(imagePos + 1);
-        }), {
-          iterations: 3
-        }).start(() => {
-          this.state.countDown.setValue(0);
-        }
+    Animated.sequence(animations(this.state)).start();
+  }
+  shouldComponentUpdate(nextProps, nextState) {
+    return false;
+  }
+  createImagesAnimated(transitionY) {
+    let result = [];
+    //What to be Animated
+    for(let i = 0; i < this.state.quantity; i++) {
+      let image =this.state.images[i];
+      // I could not make it dissapear but i can move it to the left with 0 opacity
+      let actualImage = image.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, 10]
+      });
+      result.push(
+          <Animated.Image
+              key={util.uniqueId()}
+              source={timeLapse[i]}
+              style={{
+                //How to animate it
+                  position: 'absolute',
+                  left: actualImage,
+                  opacity: image,
+                  transform: [{
+                    translateY: transitionY
+                  }]
+              }}
+          />
       );
+    }
+    return result;
   }
   render() {
+    let transitionY = this.state.countDown.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 100]
+    });
     return (
-      <Animated.View
-        style={{
-          opacity: this.state.countDown,
-          transform: [{
-            translateY: this.state.countDown.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0, 100]
-            })
-          }]
-        }}
-      >
-      {timeLapse[
-        0
-      ]}
-      </Animated.View>
+      <View>
+        {this.createImagesAnimated(transitionY)}
+      </View>
     );
   }
 }
