@@ -5,6 +5,7 @@ import {
   View,
   Dimensions,
   Image,
+  Easing,
   StyleSheet
 } from 'react-native';
 
@@ -24,6 +25,7 @@ const styles = StyleSheet.create({
   container: {
     width: width,
     height: height,
+    top: -100,
     flex: 1,
     justifyContent: 'center',
     flexDirection: 'column',
@@ -37,7 +39,7 @@ const timeLapse = [
 ];
 
 const animations = (state) => {
-  const result = []
+  let result = []
   for(let i = 0; i < state.quantity; i++) {
     //Start
     result.push(Animated.timing(
@@ -48,26 +50,39 @@ const animations = (state) => {
           }
         )
     );
+    let parallel = [];
     //Animate
     for(let j = 0; j < state.quantity; j++) {
-      result.push(Animated.timing(
+      parallel.push(Animated.sequence([
+        Animated.timing(
             state.images[j],
             {
               toValue: i === j ? 1 : 0,
               duration: 0
             }
+          ),
+        Animated.timing(
+            state.images[j],
+            {
+              easing: Easing.bezier(.07,.42,.85,.5),
+              toValue: i === j ? 1 : 0,
+              duration: 1000
+            }
           )
-      );
+      ]));
     }
     //Stop
-    result.push(Animated.timing(
+    parallel.push(Animated.timing(
           state.countDown,
           {
+            easing: Easing.bezier(.07,.42,.85,.5),
             toValue: 1,
             duration: state.duration
           }
         )
     );
+
+    result = [...result, Animated.parallel(parallel)];
   }
   return result;
 };
@@ -80,7 +95,7 @@ export default class StartingGameCountDown extends React.Component {
       currentTimeToBegin: props.currentTimeToBegin,
       quantity: 3,
       sizes: [],
-      duration: 1000,
+      duration: 3000,
       images: [new Animated.Value(1), new Animated.Value(0), new Animated.Value(0)]
     };
   }
@@ -90,11 +105,14 @@ export default class StartingGameCountDown extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     return false;
   }
-  createImagesAnimated(transitionY) {
+  createImagesAnimated(transitionY, opacity) {
     let result = [];
     //What to be Animated
     for(let i = 0; i < this.state.quantity; i++) {
-      let image =this.state.images[i];
+      let image = this.state.images[i].interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, 1]
+      });
       result.push(
           <Animated.Image
               key={util.uniqueId()}
@@ -115,11 +133,15 @@ export default class StartingGameCountDown extends React.Component {
   render() {
     let transitionY = this.state.countDown.interpolate({
       inputRange: [0, 1],
-      outputRange: [0, 100]
+      outputRange: [0, 200]
+    });
+    let opacity = this.state.countDown.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 1]
     });
     return (
-      <View>
-        {this.createImagesAnimated(transitionY)}
+      <View style={styles.container}>
+        {this.createImagesAnimated(transitionY, opacity)}
       </View>
     );
   }
