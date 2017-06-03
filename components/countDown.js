@@ -52,16 +52,19 @@ const animations = (state) => {
     );
     let parallel = [];
     //Animate
-    for(let j = 0; j < state.quantity; j++) {
-      parallel.push(
-        Animated.timing(
-            state.images[j],
-            {
-              toValue: i === j ? 1 : 0,
-              duration: i === j ? state.duration : 0
-            }
+    //First animation
+    parallel.push(
+      Animated.timing(
+          state.images[0],
+          {
+            easing: Easing.bezier(.07,.42,.85,.5),
+            toValue: i === 0 ? 1 : 0,
+            duration: i === 0 ? state.duration : 0
+          }
         )
-      );
+    );
+
+    for(let j = 1; j < state.quantity; j++) {
       parallel.push(
         Animated.timing(
             state.images[j],
@@ -98,7 +101,7 @@ export default class StartingGameCountDown extends React.Component {
       quantity: 3,
       sizes: [],
       duration: 3000,
-      images: [new Animated.Value(1), new Animated.Value(0), new Animated.Value(0)]
+      images: [new Animated.Value(0), new Animated.Value(0), new Animated.Value(0)]
     };
   }
   componentDidMount() {
