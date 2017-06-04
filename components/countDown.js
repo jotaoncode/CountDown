@@ -61,7 +61,7 @@ const animations = (state) => {
             toValue: i === 0 ? 1 : 0,
             duration: i === 0 ? state.duration : 0
           }
-        )
+      )
     );
 
     for(let j = 1; j < state.quantity; j++) {
@@ -100,7 +100,7 @@ export default class StartingGameCountDown extends React.Component {
       currentTimeToBegin: props.currentTimeToBegin,
       quantity: 3,
       sizes: [],
-      duration: 3000,
+      duration: 5000,
       images: [new Animated.Value(0), new Animated.Value(0), new Animated.Value(0)]
     };
   }
@@ -115,8 +115,8 @@ export default class StartingGameCountDown extends React.Component {
     //What to be Animated
     for(let i = 0; i < this.state.quantity; i++) {
       let image = this.state.images[i].interpolate({
-        inputRange: [0, 1],
-        outputRange: [0, 1]
+        inputRange: [0, 0.5, 1],
+        outputRange: [0, 1, 0]
       });
       result.push(
           <Animated.Image
@@ -140,13 +140,9 @@ export default class StartingGameCountDown extends React.Component {
       inputRange: [0, 1],
       outputRange: [0, 200]
     });
-    let opacity = this.state.countDown.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, 1]
-    });
     return (
       <View style={styles.container}>
-        {this.createImagesAnimated(transitionY, opacity)}
+        {this.createImagesAnimated(transitionY)}
       </View>
     );
   }
