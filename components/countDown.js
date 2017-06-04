@@ -52,19 +52,7 @@ const animations = (state) => {
     );
     let parallel = [];
     //Animate
-    //First animation
-    parallel.push(
-      Animated.timing(
-          state.images[0],
-          {
-            easing: Easing.bezier(.07,.42,.85,.5),
-            toValue: i === 0 ? 1 : 0,
-            duration: i === 0 ? state.duration : 0
-          }
-      )
-    );
-
-    for(let j = 1; j < state.quantity; j++) {
+    for(let j = 0; j < state.quantity; j++) {
       parallel.push(
         Animated.timing(
             state.images[j],
