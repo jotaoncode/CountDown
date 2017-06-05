@@ -11,7 +11,10 @@ export default class CountDown extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <CountDownComponent time={2222} currentTimeToBegin={2225}/>
+        <CountDownComponent
+          transition={{y:200}}
+          duration={5000}
+        />
       </View>
     );
   }

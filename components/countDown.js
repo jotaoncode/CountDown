@@ -38,47 +38,6 @@ const timeLapse = [
   require('../images/3.png')
 ];
 
-const animations = (state) => {
-  let result = []
-  for(let i = 0; i < state.quantity; i++) {
-    //Start
-    result.push(Animated.timing(
-          state.countDown,
-          {
-            toValue: 0,
-            duration: 0
-          }
-        )
-    );
-    let parallel = [];
-    //Animate
-    for(let j = 0; j < state.quantity; j++) {
-      parallel.push(
-        Animated.timing(
-            state.images[j],
-            {
-              easing: Easing.bezier(.07,.42,.85,.5),
-              toValue: i === j ? 1 : 0,
-              duration: i === j ? state.duration : 0
-            }
-          )
-      );
-    }
-    //Stop
-    parallel.push(Animated.timing(
-          state.countDown,
-          {
-            easing: Easing.bezier(.07,.42,.85,.5),
-            toValue: 1,
-            duration: state.duration
-          }
-        )
-    );
-
-    result = [...result, Animated.parallel(parallel)];
-  }
-  return result;
-};
 export default class StartingGameCountDown extends React.Component {
   constructor(props) {
     super(props);
@@ -89,20 +48,63 @@ export default class StartingGameCountDown extends React.Component {
       quantity: 3,
       sizes: [],
       duration: 5000,
-      images: [new Animated.Value(0), new Animated.Value(0), new Animated.Value(0)]
+      animatedValues: [new Animated.Value(0), new Animated.Value(0), new Animated.Value(0)]
     };
   }
+  animations() {
+    let result = [];
+    state = this.state;
+    for(let i = 0; i < state.quantity; i++) {
+      //Start
+      result.push(Animated.timing(
+            state.countDown,
+            {
+              toValue: 0,
+              duration: 0
+            }
+          )
+      );
+      let parallel = [];
+      //Animate
+      for(let j = 0; j < state.quantity; j++) {
+        parallel.push(
+          Animated.timing(
+              state.animatedValues[j],
+              {
+                easing: Easing.bezier(.07,.42,.85,.5),
+                toValue: i === j ? 1 : 0,
+                duration: i === j ? state.duration : 0
+              }
+            )
+        );
+      }
+      //Stop
+      parallel.push(Animated.timing(
+            state.countDown,
+            {
+              easing: Easing.bezier(.07,.42,.85,.5),
+              toValue: 1,
+              duration: state.duration
+            }
+          )
+      );
+
+      result = [...result, Animated.parallel(parallel)];
+    }
+    return result;
+  }
   componentDidMount() {
-    Animated.sequence(animations(this.state)).start();
+    Animated.sequence(this.animations()).start();
   }
   shouldComponentUpdate(nextProps, nextState) {
+    //I don't to run lifecycle in any case by mistake here
     return false;
   }
   createImagesAnimated(transitionY, opacity) {
     let result = [];
     //What to be Animated
     for(let i = 0; i < this.state.quantity; i++) {
-      let image = this.state.images[i].interpolate({
+      let image = this.state.animatedValues[i].interpolate({
         inputRange: [0, 0.5, 1],
         outputRange: [0, 1, 0]
       });
